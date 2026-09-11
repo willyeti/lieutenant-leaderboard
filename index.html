@@ -1,0 +1,143 @@
+<meta charset="utf-8">
+<title>Lieutenant Leaderboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#0b0d1b; --ground-2:#0f1226; --surface:#161a33; --surface-2:#1d2244;
+    --line:#2b3160; --line-soft:#20264a;
+    --ink:#eaecff; --muted:#9aa1cf; --faint:#6d75a6;
+    --accent:#63e6da; --good:#5ad39a; --warn:#e8b45c;
+    /* WoW class colors */
+    --Mage:#3fc7eb; --Rogue:#fff569; --Warrior:#c69b6d; --Monk:#00ff98; --DemonHunter:#a330c9;
+    --Paladin:#f58cba; --Shaman:#2f7fe0; --DeathKnight:#e0324f;
+    --maxw:760px;
+    --shadow:0 1px 0 rgba(255,255,255,.03), 0 18px 40px -24px rgba(0,0,0,.8);
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--ground); color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,sans-serif; font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(1100px 460px at 74% -8%, rgba(99,230,218,.10), transparent 60%), radial-gradient(900px 420px at 10% -10%, rgba(232,180,92,.07), transparent 55%);
+    background-repeat:no-repeat;}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 22px 84px}
+  h1,h2,h3{text-wrap:balance; margin:0}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums}
+
+  header{padding:60px 0 22px}
+  .eyebrow{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.24em; text-transform:uppercase; color:var(--accent); margin-bottom:18px}
+  .eyebrow .sep{color:var(--faint); margin:0 8px}
+  h1{font-family:"Fraunces",serif; font-weight:600; font-size:clamp(40px,7.5vw,70px); line-height:1.0; letter-spacing:-.015em}
+  h1 .sub{display:block; font-size:clamp(15px,2.3vw,18px); font-weight:500; font-family:"IBM Plex Sans",sans-serif; letter-spacing:0; color:var(--muted); margin-top:18px; line-height:1.55}
+  h1 .sub b{color:var(--ink)}
+  .meta-row{display:flex; flex-wrap:wrap; gap:8px; margin-top:22px}
+  .mtag{font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--muted); background:var(--surface-2); border:1px solid var(--line-soft); padding:5px 11px; border-radius:999px}
+  .mtag b{color:var(--ink)}
+
+  .legend{display:flex; flex-wrap:wrap; gap:16px; margin:26px 0 4px; font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--muted)}
+  .legend span{display:flex; align-items:center; gap:7px}
+  .badge{font-family:"IBM Plex Mono",monospace; font-size:10px; font-weight:600; padding:2px 7px; border-radius:5px; letter-spacing:.02em}
+  .badge.ok{color:var(--good); background:rgba(90,211,154,.12); border:1px solid rgba(90,211,154,.28)}
+  .badge.sm{color:var(--warn); background:rgba(232,180,92,.10); border:1px solid rgba(232,180,92,.26)}
+
+  section{margin-top:40px}
+  .kicker{font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint); margin-bottom:6px}
+  h2{font-family:"Fraunces",serif; font-weight:600; font-size:27px; letter-spacing:-.01em; margin-bottom:18px}
+  .say{color:var(--muted); font-size:15px; max-width:62ch; margin-bottom:18px}
+  .say b{color:var(--ink); font-weight:600}
+
+  .board{display:flex; flex-direction:column; gap:9px}
+  .lrow{display:grid; grid-template-columns:34px 1fr; gap:12px; align-items:center}
+  .lrow .rk{font-family:"Fraunces",serif; font-weight:600; font-size:22px; color:var(--faint); text-align:right}
+  .lrow.top1 .rk,.lrow.top2 .rk,.lrow.top3 .rk{color:var(--ink)}
+  .cell{background:var(--surface); border:1px solid var(--line-soft); border-radius:10px; padding:9px 13px}
+  .cline{display:flex; align-items:center; gap:10px; margin-bottom:7px}
+  .dot{width:11px; height:11px; border-radius:50%; flex:none}
+  .spec{font-size:14.5px; font-weight:600; color:var(--ink)}
+  .apps{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--faint); margin-left:auto; display:flex; align-items:center; gap:8px}
+  .track{position:relative; height:22px; background:var(--surface-2); border-radius:6px; overflow:hidden}
+  .fill{position:absolute; left:0; top:0; bottom:0; border-radius:6px; display:flex; align-items:center; justify-content:flex-end; padding-right:8px}
+  .fill.sm{opacity:.55; background-image:repeating-linear-gradient(135deg,rgba(0,0,0,0),rgba(0,0,0,0) 5px,rgba(0,0,0,.18) 5px,rgba(0,0,0,.18) 10px)}
+  .fill .fv{font-family:"IBM Plex Mono",monospace; font-weight:600; font-size:12px; color:#06111a}
+  .foc{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--muted); white-space:nowrap}
+
+  .read{border-left:3px solid var(--accent); background:var(--ground-2); border-radius:0 12px 12px 0; padding:16px 20px}
+  .read h3{font-family:"IBM Plex Sans",sans-serif; font-size:14px; font-weight:600; color:var(--ink); margin-bottom:10px}
+  .read ul{margin:0; padding-left:18px; color:var(--muted); font-size:14px}
+  .read li{margin:7px 0}
+  .read li b{color:var(--ink)}
+
+  footer{margin-top:48px; padding-top:20px; border-top:1px solid var(--line); color:var(--faint); font-size:12.5px; font-family:"IBM Plex Mono",monospace}
+  footer .kv{display:flex; flex-wrap:wrap; gap:6px 24px; margin-bottom:12px}
+  footer .kv span b{color:var(--muted); font-weight:500}
+  .disclaim{margin-top:12px; color:var(--faint); font-size:11.5px; line-height:1.6}
+</style>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Mythic+ Season 2 <span class="sep">/</span> +15 → +18 <span class="sep">/</span> top-group meta</div>
+  <h1>Lieutenant Leaderboard
+    <span class="sub">Which <b>DPS specs</b> put out the most damage into the high-HP <b>lieutenant</b> mobs — ranked across <b>99 top +15–18 keys</b>. Tanks and healers excluded; they were only used to find the logs.</span>
+  </h1>
+  <div class="meta-row">
+    <span class="mtag"><b>99</b> keys analyzed</span>
+    <span class="mtag"><b>512</b> logs sampled</span>
+    <span class="mtag">metric: <b>avg priority DPS</b></span>
+    <span class="mtag">DPS role only</span>
+  </div>
+  <div class="legend">
+    <span><span class="badge ok">SOLID</span> 10+ logs</span>
+    <span><span class="badge sm">SMALL</span> under 10 logs — noisy</span>
+    <span>hatched bar = small sample</span>
+  </div>
+</header>
+
+<section>
+  <div class="kicker">Ranked by priority DPS</div>
+  <h2>The top 10</h2>
+  <div class="board">
+    <!-- 1 -->
+    <div class="lrow top1"><div class="rk">1</div><div class="cell"><div class="cline"><span class="dot" style="background:var(--Mage)"></span><span class="spec">Arcane Mage</span><span class="apps"><span class="foc">24.3% focus</span><span class="badge ok">77 logs</span></span></div><div class="track"><div class="fill" style="width:96.7%;background:var(--Mage)"><span class="fv">67,665</span></div></div></div></div>
+    <!-- 2 -->
+    <div class="lrow top2"><div class="rk">2</div><div class="cell"><div class="cline"><span class="dot" style="background:var(--Rogue)"></span><span class="spec">Assassination Rogue</span><span class="apps"><span class="foc">23.9% focus</span><span class="badge sm">4 logs</span></span></div><div class="track"><div class="fill sm" style="width:96.4%;background:var(--Rogue)"><span class="fv">67,460</span></div></div></div></div>
+    <!-- 3 -->
+    <div class="lrow top3"><div class="rk">3</div><div class="cell"><div class="cline"><span class="dot" style="background:var(--Warrior)"></span><span class="spec">Arms Warrior</span><span class="apps"><span class="foc">24.5% focus</span><span class="badge ok">86 logs</span></span></div><div class="track"><div class="fill" style="width:92.5%;background:var(--Warrior)"><span class="fv">64,717</span></div></div></div></div>
+    <!-- 4 -->
+    <div class="lrow"><div class="rk">4</div><div class="cell"><div class="cline"><span class="dot" style="background:var(--Monk)"></span><span class="spec">Windwalker Monk</span><span class="apps"><span class="foc">22.4% focus</span><span class="badge sm">3 logs</span></span></div><div class="track"><div class="fill sm" style="width:88.7%;background:var(--Monk)"><span class="fv">62,059</span></div></div></div></div>
+    <!-- 5 -->
+    <div class="lrow"><div class="rk">5</div><div class="cell"><div class="cline"><span class="dot" style="background:var(--DemonHunter)"></span><span class="spec">Havoc Demon Hunter</span><span class="apps"><span class="foc">22.2% focus</span><span class="badge ok">13 logs</span></span></div><div class="track"><div class="fill" style="width:87.3%;background:var(--DemonHunter)"><span class="fv">61,113</span></div></div></div></div>
+    <!-- 6 -->
+    <div class="lrow"><div class="rk">6</div><div class="cell"><div class="cline"><span class="dot" style="background:var(--Paladin)"></span><span class="spec">Retribution Paladin</span><span class="apps"><span class="foc">22.8% focus</span><span class="badge ok">10 logs</span></span></div><div class="track"><div class="fill" style="width:86.8%;background:var(--Paladin)"><span class="fv">60,790</span></div></div></div></div>
+    <!-- 7 -->
+    <div class="lrow"><div class="rk">7</div><div class="cell"><div class="cline"><span class="dot" style="background:var(--Rogue)"></span><span class="spec">Subtlety Rogue</span><span class="apps"><span class="foc">23.4% focus</span><span class="badge sm">4 logs</span></span></div><div class="track"><div class="fill sm" style="width:86.0%;background:var(--Rogue)"><span class="fv">60,226</span></div></div></div></div>
+    <!-- 8 -->
+    <div class="lrow"><div class="rk">8</div><div class="cell"><div class="cline"><span class="dot" style="background:var(--Rogue)"></span><span class="spec">Outlaw Rogue</span><span class="apps"><span class="foc">20.9% focus</span><span class="badge sm">3 logs</span></span></div><div class="track"><div class="fill sm" style="width:81.1%;background:var(--Rogue)"><span class="fv">56,741</span></div></div></div></div>
+    <!-- 9 -->
+    <div class="lrow"><div class="rk">9</div><div class="cell"><div class="cline"><span class="dot" style="background:var(--Shaman)"></span><span class="spec">Enhancement Shaman</span><span class="apps"><span class="foc">19.3% focus</span><span class="badge sm">3 logs</span></span></div><div class="track"><div class="fill sm" style="width:76.5%;background:var(--Shaman)"><span class="fv">53,568</span></div></div></div></div>
+    <!-- 10 -->
+    <div class="lrow"><div class="rk">10</div><div class="cell"><div class="cline"><span class="dot" style="background:var(--DeathKnight)"></span><span class="spec">Frost Death Knight</span><span class="apps"><span class="foc">19.2% focus</span><span class="badge sm">5 logs</span></span></div><div class="track"><div class="fill sm" style="width:75.6%;background:var(--DeathKnight)"><span class="fv">52,891</span></div></div></div></div>
+  </div>
+</section>
+
+<section>
+  <div class="kicker">The read</div>
+  <h2>How to read this board</h2>
+  <div class="read">
+    <ul>
+      <li><b>Arcane Mage and Arms Warrior are the bedrock.</b> They're the only two with big samples (77 and 86 keys) at the top — ~65–68k priority DPS. If you want a spec that <em>reliably</em> melts lieutenants in the current meta, it's these two.</li>
+      <li><b>Rogues punch above their rarity.</b> All three specs — Assassination (#2), Subtlety (#7), Outlaw (#8) — crack the top 10, but each on only 3–4 logs. Rogues are uncommon in top +15–18 comps, so the numbers are noisy; the *direction* (Rogues are elite single-target funnels) is believable, the exact figure isn't settled.</li>
+      <li><b>Small samples are marked for a reason.</b> Windwalker (#4), the Rogues, Enhance and Frost DK all sit under 10 logs — a couple of great parses can lift a spec several ranks. Trust the SOLID tier (Arcane, Arms, Havoc, Ret) far more than the SMALL tier.</li>
+      <li><b>Focus vs output:</b> the top specs cluster at ~22–25% focus — priority damage tracks raw single-target output, not just discipline. Off the board, BM Hunter funnels hardest of anyone (34% focus) but does the least damage, and Balance Druid sits at ~20% — the cleave-lean profiles.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="kv">
+    <span><b>Sample</b> 99 keys / 512 sampled</span>
+    <span><b>Range</b> +15 → +18</span>
+    <span><b>Season</b> Mythic+ S2</span>
+    <span><b>Source</b> Warcraft Logs</span>
+  </div>
+  <div class="disclaim">Priority DPS = a spec's damage into lieutenant mobs ÷ fight duration, averaged across its appearances. Lieutenants are non-boss NPCs above a key-scaled HP floor (12M at +12, ×1.08 per level). Top logs sampled via tank/healer parses so DPS specs aren't cherry-picked; only DPS-role players are counted. Specs with fewer than 3 appearances omitted. WCL's boss/trash flag is imperfect at the margins. Not affiliated with Blizzard Entertainment or Raider.IO.</div>
+</footer>
+</div>
